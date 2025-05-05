@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String      @id @default(uuid())
+  name           String
+  email          String      @unique
+  password       String
+  profilePicture String?
+  contactNumber  String?
+  role           Role        @default(USER)
+  reviews        Review[]
+  comments       Comment[]
+  likes          Like[]
+  purchases      Purchase[]
+  watchlist      Watchlist[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Movie {
+  id           String      @id @default(uuid())
+  title        String
+  synopsis     String
+  genres       Genre[]
+  releaseYear  Int
+  director     String
+  cast         String
+  platform     String
+  buyPrice     Float
+  rentPrice    Float
+  discount     Float       @default(0)
+  streamingUrl String
+  type         MediaType
+  reviews      Review[]
+  purchases    Purchase[]
+  watchlists   Watchlist[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Review {
+  id         String       @id @default(uuid())
+  rating     Int // 1-10 scale
+  content    String
+  tags       String[] // e.g., ["classic", "family-friendly"]
+  hasSpoiler Boolean
+  status     ReviewStatus @default(PENDING)
+  user       User         @relation(fields: [userId], references: [id])
+  userId     String
+  movie      Movie        @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId    String
+  comments   Comment[]
+  likes      Like[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  review    Review   @relation(fields: [reviewId], references: [id])
+  reviewId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  review    Review   @relation(fields: [reviewId], references: [id])
+  reviewId  String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, reviewId]) // 1 like per user per review
+}
+
+model Purchase {
+  id          String       @id @default(uuid())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  movie       Movie        @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId     String
+  type        PurchaseType // BUY or RENT
+  accessUntil DateTime? // null for buy, date for rental
+  createdAt   DateTime     @default(now())
+}
+
+model Watchlist {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId   String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, movieId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum MediaType {
+  MOVIE
+  SERIES
+}
+
+enum ReviewStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+enum PurchaseType {
+  BUY
+  RENT
+}
+
+enum Genre {
+  ACTION
+  DRAMA
+  COMEDY
+  HORROR
+  ROMANCE
+  THRILLER
+  SCIFI
+  DOCUMENTARY
+  ANIMATION
+  FANTASY
+  MYSTERY
+  OTHER
+}
