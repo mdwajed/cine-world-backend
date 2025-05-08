@@ -21,8 +21,6 @@ export type TMovieFilterData = {
   cast?: string;
   platform?: string;
   releaseYear?: number;
-  minRating?: number;
-  maxRating?: number;
 };
 export type TUpdateMovieData = {
   title?: string;
