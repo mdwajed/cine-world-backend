@@ -42,3 +42,8 @@ export const watchlistService = {
   removeFromWatchlist,
   getUserWatchlist,
 };
+// "test": "echo \"Error: no test specified\" && exit 1",
+// "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+// "prod": "NODE_ENV=production node ./dist/server.js",
+// "build": "tsc",
+// "seed": "ts-node prisma/seed.ts"
